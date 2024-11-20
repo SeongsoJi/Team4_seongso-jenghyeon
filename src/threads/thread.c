@@ -102,7 +102,7 @@ thread_init (void)
   initial_thread->tid = allocate_tid ();
 }
 
-// 가장 먼저 일어나야할 스레드가 일어날 시각을 반환함
+// 가장 먼저 일어나야할 스레드가 일어날 시각을 반환함. 2024.11.21 수정
 void update_next_tick_to_awake(int64_t ticks){
   /* next_tick_to_awake 가 깨워야 할 스레드의 깨어날 tick값 중 가장 작은 tick을 갖도록 업데이트 함 */
   next_tick_to_awake = (next_tick_to_awake > ticks) ? ticks : next_tick_to_awake;
