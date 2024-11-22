@@ -78,6 +78,7 @@ timer_ticks (void)
 
 /* Returns the number of timer ticks elapsed since THEN, which
    should be a value once returned by timer_ticks(). */
+// 여기서 현재 ticks 값에서 과거의 ticks 값을 빼서 값을 리턴한다.
 int64_t
 timer_elapsed (int64_t then) 
 {
@@ -86,6 +87,21 @@ timer_elapsed (int64_t then)
 
 /* Sleeps for approximately TICKS timer ticks.  Interrupts must
    be turned on. */
+
+// ticks란 핀토스 내부에서 시간을 나타내기 위한 값으로  부팅 이후에 일정한 시간마다 1씩 증가함.
+
+///원래 코드
+
+/*void timer_sleep (int64_t ticks) {
+  int64_t start = timer_ticks ();
+  while (timer_elapsed (start) < ticks) 
+    thread_yield ();
+}*/
+
+//timer_ticks() -> 현재 ticks 값을 반환하는 함수
+//timer_elapsed() -> 특정시간 이후로 경과된 ticks를 반환한다.
+//즉, 정해진 ticks 값보다 경과된 ticks값이 작다면, 스레드를 양도한다.
+/
 void timer_sleep (int64_t ticks){
     int64_t start = timer_ticks ();
     ASSERT (intr_get_level () == INTR_ON);
