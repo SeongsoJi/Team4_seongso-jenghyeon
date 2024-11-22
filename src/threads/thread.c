@@ -94,7 +94,7 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
-  list_init (&sleep_list); /* 추가한 부분 */
+  list_init (&sleep_list); /* 추가한 부분, sleep 상태의 스레드들로만 이루어진 리스트를 만들어 관리 */
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
   init_thread (initial_thread, "main", PRI_DEFAULT);
@@ -114,43 +114,45 @@ int64_t get_next_tick_to_awake(void){
 }
 
 //스레드를 ticks시각 까지 재우는 함수
-void thread_sleep(int64_t ticks){
+void thread_sleep(int64_t ticks)
+{
     struct thread *cur;
 
-    // 인터럽트를 금지하고 이전 인터럽트 레벨을 저장함
+    // 인터럽트를 off 이전 인터럽트 레벨을 저장함
     enum intr_level old_level;
     old_level = intr_disable();
+
     cur = thread_current(); // idle 스레드는 sleep 되지 않아야 함
+
     ASSERT(cur != idle_thread);
 
-    // awake함수가 실행되어야 할 tick값을 update
-    update_next_tick_to_awake(cur-> wakeup_tick = ticks);
 
-    // 현재 스레드를 슬립 큐에 삽입한 후에 스케줄한다. 
+    // 일어날 시간을 저장
+    cur->wakeup = ticks;
+
+    // sleep_list에 추가
     list_push_back(&sleep_list, &cur->elem);
 
-    //이 스레드를 블락하고 다시 스케줄될 때 까지 블락된 상태로 대기
+    //block 상태로 변
     thread_block();
 
-    // 인터럽트를 다시 받아들이도록 수정 
+    // 인터럽트 on 
     intr_set_level(old_level);
 }
 
 //푹 자고 있는 스레드 중에 깨어날 시각이 ticks시각이 지난 애들을 모조리 깨우는 함수
-void thread_awake(int64_t wakeup_tick){
-    next_tick_to_awake = INT64_MAX;
-    struct list_elem *e;
-    e = list_begin(&sleep_list);
+void thread_awake(int64_t ticks)
+{
+    struct list_elem *e = list_begin(&sleep_list);
+
     while(e != list_end(&sleep_list)){
         struct thread * t = list_entry(e, struct thread, elem);
-
-        if(wakeup_tick >= t->wakeup_tick){
-            e = list_remove(&t->elem);
-            thread_unblock(t);
-        }else{
-            e = list_next(e);
-            update_next_tick_to_awake(t->wakeup_tick);
+        if(t->wakeup <= ticks){  //스레드가 일어날 시간이 되었는지 확인
+            e = list_remove(e);  //sleep list에서 제가
+            thread_unblock(t);   //스레드 unblock
         }
+        else
+            e = list_next(e);
     }
 }
 /* Starts preemptive thread scheduling by enabling interrupts.

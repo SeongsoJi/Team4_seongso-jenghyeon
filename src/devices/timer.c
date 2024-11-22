@@ -104,8 +104,6 @@ timer_elapsed (int64_t then)
 /
 void timer_sleep (int64_t ticks){
     int64_t start = timer_ticks ();
-    ASSERT (intr_get_level () == INTR_ON);
-
     // 기존의 busy waiting을 유발하는 코드를 삭제하고, 새로 구현한 thread를 sleep list에 삽입하는 함수 호출함 
     thread_sleep(start + ticks);
 }
@@ -186,12 +184,8 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
-
-  /* 매 tick마다 sleep queue에서 깨어날 thread가 있는지 확인하여, 
-     깨우는 함수를 호출하도록 함. */
-  if (get_next_tick_to_awake() <= ticks) {
-    thread_awake(ticks);
-  }
+  thread_awake (ticks);
+  /* tick이 증가할때마다 awake 작업 수행 */
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

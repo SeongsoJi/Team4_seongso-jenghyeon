@@ -89,7 +89,7 @@ struct thread
     uint8_t *stack;                     /* Saved stack pointer. */
     int priority;                       /* Priority. */
     struct list_elem allelem;           /* List element for all threads list. */
-    int64_t wakeup_tick;                /* 깨어나야 할 tick을 저장할 변수 추가. */
+    int64_t wakeup;                /* 깨어나야 할 ticks 값 */
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
 
@@ -138,4 +138,7 @@ void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
+void thread_sleep(int64_t ticks);
+void thread_awake(int64_t ticks);
+//새롭게 sleep,awake 함수를 추가하였으므로 thread.h에 프로토타입을 선언해주어야함.
 #endif /* threads/thread.h */
