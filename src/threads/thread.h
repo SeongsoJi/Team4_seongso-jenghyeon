@@ -141,4 +141,5 @@ int thread_get_load_avg (void);
 void thread_sleep(int64_t ticks);
 void thread_awake(int64_t ticks);
 //새롭게 sleep,awake 함수를 추가하였으므로 thread.h에 프로토타입을 선언해주어야함.
+
 #endif /* threads/thread.h */

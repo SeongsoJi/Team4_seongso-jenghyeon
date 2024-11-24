@@ -118,38 +118,41 @@ void thread_sleep(int64_t ticks)
 {
     struct thread *cur;
 
-    // 인터럽트를 off 이전 인터럽트 레벨을 저장함
+    // 인터럽트를 off 이전 인터럽트 레벨을 저장한다. cur은 현재 실행 중인 스레드의 정보에 접근하기 위한 포인터
     enum intr_level old_level;
-    old_level = intr_disable();
+    old_level = intr_disable();   //인터럽트 비활성화, 이전 상태 저장한다.
 
-    cur = thread_current(); // idle 스레드는 sleep 되지 않아야 함
+    cur = thread_current();  //현재 실행중인 스레드를 가져온다.
 
-    ASSERT(cur != idle_thread);
+    ASSERT(cur != idle_thread);  //Idle 스레드가 아닌지 확인한다.
 
-
-    // 일어날 시간을 저장
+    // 일어날 시간을 저장한다
     cur->wakeup = ticks;
 
-    // sleep_list에 추가
+    // sleep_list에 스레드를 추가한다
     list_push_back(&sleep_list, &cur->elem);
 
-    //block 상태로 변
+    //block 상태로 전환한다
     thread_block();
 
-    // 인터럽트 on 
+    // 인터럽트 on 시킨다
     intr_set_level(old_level);
 }
 
 //푹 자고 있는 스레드 중에 깨어날 시각이 ticks시각이 지난 애들을 모조리 깨우는 함수
-void thread_awake(int64_t ticks)
+void
+thread_awake(int64_t ticks)
 {
     struct list_elem *e = list_begin(&sleep_list);
+    //list_begin(&sleep_list)**는 list.h에 정의된 함수, 리스트의 첫 번째 요소를 반환
+    //반환된 값은 struct list_elem 포인터인 **e**에 저장
+    //e를 사용하여 sleep_list를 순회
 
-    while(e != list_end(&sleep_list)){
+    while(e != list_end(&sleep_list)){     //e가 sleep_list를 계속 도는데, 리스트가 끝날때까지 계속 돈다.
         struct thread * t = list_entry(e, struct thread, elem);
         if(t->wakeup <= ticks){  //스레드가 일어날 시간이 되었는지 확인
-            e = list_remove(e);  //sleep list에서 제가
-            thread_unblock(t);   //스레드 unblock
+            e = list_remove(e);  //sleep list에서 제거
+            thread_unblock(t);   //스레드 unblock한다. 즉, ready state로 만든다!
         }
         else
             e = list_next(e);

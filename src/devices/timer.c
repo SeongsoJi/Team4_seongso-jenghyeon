@@ -101,7 +101,7 @@ timer_elapsed (int64_t then)
 //timer_ticks() -> 현재 ticks 값을 반환하는 함수
 //timer_elapsed() -> 특정시간 이후로 경과된 ticks를 반환한다.
 //즉, 정해진 ticks 값보다 경과된 ticks값이 작다면, 스레드를 양도한다.
-/
+
 void timer_sleep (int64_t ticks){
     int64_t start = timer_ticks ();
     // 기존의 busy waiting을 유발하는 코드를 삭제하고, 새로 구현한 thread를 sleep list에 삽입하는 함수 호출함 
