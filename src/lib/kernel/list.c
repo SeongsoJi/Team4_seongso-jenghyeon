@@ -167,14 +167,16 @@ list_tail (struct list *list)
    list_push_back(). */
 void
 list_insert (struct list_elem *before, struct list_elem *elem)
+// struct list_elem *before : 삽입하려는 위치, 새로운 요소는 before 앞에 삽입
+// struct list_elem *elem : 삽입하려는 새로운 리스트 요소
 {
-  ASSERT (is_interior (before) || is_tail (before));
-  ASSERT (elem != NULL);
+  ASSERT (is_interior (before) || is_tail (before)); // before가 리스트 내부의 유효한 요소인지 확인, before가 리스트 끝 요소인지 확인
+  ASSERT (elem != NULL); // 삽입할 요소 elem이 NULL인지 확인
 
-  elem->prev = before->prev;
-  elem->next = before;
-  before->prev->next = elem;
-  before->prev = elem;
+  elem->prev = before->prev; // elem->prev는 before의 이전 요소를 가리킴
+  elem->next = before; // elem->next는 before를 가리킴
+  before->prev->next = elem; // before의 이전 요소가 이제 elem을 가리키게 함
+  before->prev = elem; // before의 이전 요소를 elem으로 업데이트
 }
 
 /* Removes elements FIRST though LAST (exclusive) from their
@@ -444,19 +446,29 @@ list_sort (struct list *list, list_less_func *less, void *aux)
    Runs in O(n) average case in the number of elements in LIST. */
 void
 list_insert_ordered (struct list *list, struct list_elem *elem,
-                     list_less_func *less, void *aux)
+                     list_less_func *less, void *aux) 
+// 정렬하여 리스트에 insert하는 함수
+// struct list *list : 정렬된 순서로 삽입할 대상이 되는 리스트
+// struct list_elem *elem : 삽입하려는 리스트 요소
+// list_less_func *less : 비교 함수로, 두 요소를 비교하여 정렬 순서를 결정, 반환값이 true면 첫 번째 요소가 두 번째 요소보다 작다고 간주
+// void *aux : 비교 함수에 전달할 추가 데이터를 담는 포인터, 필요에 따라 사용
 {
   struct list_elem *e;
 
-  ASSERT (list != NULL);
+  ASSERT (list != NULL); //list, elem, less가 유효한 포인터인지 확인, 만약 NULL이라면 실행 중단
   ASSERT (elem != NULL);
   ASSERT (less != NULL);
 
-  for (e = list_begin (list); e != list_end (list); e = list_next (e))
-    if (less (elem, e, aux))
+  for (e = list_begin (list); e != list_end (list); e = list_next (e)) // 리스트의 시작부터 끝까지 요소를 순회
+    if (less (elem, e, aux)) // 삽입하려는 요소 elem이 현재 요소 e보다 작다면 반복을 멈춤
       break;
-  return list_insert (e, elem);
+  return list_insert (e, elem); // e 앞에 elem을 삽입하고 성공 시 삽입된 요소를 반환
 }
+
+/* 이해하기 쉬운 예시 : 리스트에 {10, 20, 30}가 있고, elem 값이 25라면:
+10 < 25, 20 < 25: 계속 순회.
+25 < 30: 조건에 따라 30 앞에 25를 삽입.
+결과: {10, 20, 25, 30} */
 
 /* Iterates through LIST and removes all but the first in each
    set of adjacent elements that are equal according to LESS
