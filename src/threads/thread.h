@@ -141,5 +141,7 @@ int thread_get_load_avg (void);
 void thread_sleep(int64_t ticks);
 void thread_awake(int64_t ticks);
 //새롭게 sleep,awake 함수를 추가하였으므로 thread.h에 프로토타입을 선언해주어야함.
-
+void priority_test (void);
+bool cmp_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
+// 우선순위를 비교하는 함수 생성 -> priority_test
 #endif /* threads/thread.h */
