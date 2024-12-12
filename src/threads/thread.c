@@ -367,6 +367,11 @@ thread_yield (void)
   old_level = intr_disable ();
   if (cur != idle_thread) 
     list_push_back (&ready_list, &cur->elem);
+   // ready_list에 스레드를 추가
+   // 이 함수는 lib/kernel/list.c에 위치
+   // 새로운 elem을 리스트의 맨 뒤에 push 하는 함수
+   // 원래 pintos 는 새로운 스레드를 ready_list 에 넣을 때 항상 맨 뒤에 넣음
+   // thread_yield 함수에도 list_push_back 함수 존재
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -551,7 +556,7 @@ next_thread_to_run (void)
   if (list_empty (&ready_list))
     return idle_thread;
   else
-    return list_entry (list_pop_front (&ready_list), struct thread, elem);
+    return list_entry (list_pop_front (&ready_list), struct thread, elem); // list_pop_front(&ready_list)를 통해 ready_list 의 맨 앞의 항목을 반환한다는 것을 알 수 있음
 }
 
 /* Completes a thread switch by activating the new thread's page
@@ -608,10 +613,10 @@ thread_schedule_tail (struct thread *prev)
    It's not safe to call printf() until thread_schedule_tail()
    has completed. */
 static void
-schedule (void) 
+schedule (void) // CPU 점유권을 cur 에서 next 스레드로 넘김
 {
   struct thread *cur = running_thread ();
-  struct thread *next = next_thread_to_run ();
+  struct thread *next = next_thread_to_run (); // 이 함수에 의하여 CPU 의 점유권을 받는 함수가 결정됨. thread.c에 이 함수도 존재함.
   struct thread *prev = NULL;
 
   ASSERT (intr_get_level () == INTR_OFF);
