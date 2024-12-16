@@ -258,8 +258,8 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
-
-  return tid;
+  priority_test();  /* 생성된 스레드 우선순위 > 현재 실행중인 스레드 우선순위 -> CPU 양보 */
+   return tid;
 }
 
 /* Puts the current thread to sleep.  It will not be scheduled
