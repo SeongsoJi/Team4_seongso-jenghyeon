@@ -645,3 +645,14 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
+
+void priority_test(void) {
+   /* ready_list에서의 우선순위 스케줄링(우선순위 가장 높은 스레드 vs 현재 스레드 */
+	if (!list_empty(&ready_list)) { /* 1. ready_list가 비어있는지? */
+		struct thread *top_pri = list_begin(&ready_list); /* ready_list에서 가장 우선순위가 높은 스레드 가져오기 */
+		if (cmp_priority(top_pri, &thread_current()->elem, NULL)) /* 가장 높은 우선순위의 스레드 vs 현재 스레드 */
+		{
+			thread_yield(); /* 현재 스레드가 우선순위 낮을 시 양보 */
+		}
+	}
+}
