@@ -656,3 +656,10 @@ void priority_test(void) {
 		}
 	}
 }
+bool cmp_priority(const struct list_elem*a_, const struct list_elem*b, void *aux UNUSED)
+{
+	struct thread*a =list_entry(a_, struct thread, elem) -> priority;
+	struct thread*b =list_entry(b_, struct thread, elem) -> priority;
+	return a->priority > b->priority;
+}
+	
